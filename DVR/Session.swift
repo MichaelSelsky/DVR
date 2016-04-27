@@ -8,6 +8,7 @@ public class Session: NSURLSession {
     public let cassetteName: String
     public let backingSession: NSURLSession
     public var recordingEnabled = true
+    public var abortAfterRecording = true
 
     private let testBundle: NSBundle
 
@@ -16,17 +17,15 @@ public class Session: NSURLSession {
     private var outstandingTasks = [NSURLSessionTask]()
     private var completedInteractions = [Interaction]()
     private var completionBlock: (Void -> Void)?
-    private let abortAfterRecording: Bool
 
 
     // MARK: - Initializers
 
-    public init(outputDirectory: String = "~/Desktop/DVR/", cassetteName: String, testBundle: NSBundle = NSBundle.allBundles().filter() { $0.bundlePath.hasSuffix(".xctest") }.first!, backingSession: NSURLSession = NSURLSession.sharedSession(), abortAfterRecording: Bool = true) {
+    public init(outputDirectory: String = "~/Desktop/DVR/", cassetteName: String, testBundle: NSBundle = NSBundle.allBundles().filter() { $0.bundlePath.hasSuffix(".xctest") }.first!, backingSession: NSURLSession = NSURLSession.sharedSession()) {
         self.outputDirectory = outputDirectory
         self.cassetteName = cassetteName
         self.testBundle = testBundle
         self.backingSession = backingSession
-        self.abortAfterRecording = abortAfterRecording
         super.init()
     }
 
