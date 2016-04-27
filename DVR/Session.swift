@@ -16,15 +16,17 @@ public class Session: NSURLSession {
     private var outstandingTasks = [NSURLSessionTask]()
     private var completedInteractions = [Interaction]()
     private var completionBlock: (Void -> Void)?
+    private let abortAfterRecording: Bool
 
 
     // MARK: - Initializers
 
-    public init(outputDirectory: String = "~/Desktop/DVR/", cassetteName: String, testBundle: NSBundle = NSBundle.allBundles().filter() { $0.bundlePath.hasSuffix(".xctest") }.first!, backingSession: NSURLSession = NSURLSession.sharedSession()) {
+    public init(outputDirectory: String = "~/Desktop/DVR/", cassetteName: String, testBundle: NSBundle = NSBundle.allBundles().filter() { $0.bundlePath.hasSuffix(".xctest") }.first!, backingSession: NSURLSession = NSURLSession.sharedSession(), abortAfterRecording: Bool = true) {
         self.outputDirectory = outputDirectory
         self.cassetteName = cassetteName
         self.testBundle = testBundle
         self.backingSession = backingSession
+        self.abortAfterRecording = abortAfterRecording
         super.init()
     }
 
@@ -143,10 +145,13 @@ public class Session: NSURLSession {
     }
 
     private func persist(interactions: [Interaction]) {
+        
         defer {
-            abort()
+            if self.abortAfterRecording {
+                abort()
+            }
         }
-
+        
         // Create directory
         let outputDirectory = (self.outputDirectory as NSString).stringByExpandingTildeInPath
         let fileManager = NSFileManager.defaultManager()
@@ -178,8 +183,6 @@ public class Session: NSURLSession {
                 data.writeToFile(outputPath, atomically: true)
                 print("[DVR] Persisted cassette at \(outputPath). Please add this file to your test target")
             }
-
-            print("[DVR] Failed to persist cassette.")
         } catch {
             print("[DVR] Failed to persist cassette.")
         }
